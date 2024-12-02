@@ -16,7 +16,27 @@ let ledState = {
 let hardwareStatus = {
   online: false,
   lastPing: null,
+  lastSeen: null, // To store the last seen time
 };
+
+// Helper function to get the current time in IST format
+function getIndiaTime() {
+  const now = new Date();
+  const indiaTimeZone = now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
+  const indiaDate = new Date(indiaTimeZone);
+
+  const options = {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false, // Use 24-hour format
+  };
+
+  return indiaDate.toLocaleString("en-US", options);
+}
 
 // Endpoint to get the LED state
 app.get("/led", (req, res) => {
@@ -81,6 +101,8 @@ app.post("/hardware", (req, res) => {
 
     hardwareStatus.online = true;
     hardwareStatus.lastPing = new Date(); // Store current time as the last ping time
+    hardwareStatus.lastSeen = getIndiaTime(); // Record last seen time in IST
+
     console.log("Heartbeat received. Hardware is online.");
 
     res.json({
@@ -99,6 +121,7 @@ app.get("/hardware", (req, res) => {
     const response = {
       online: hardwareStatus.online,
       lastPing: hardwareStatus.lastPing ? hardwareStatus.lastPing.toLocaleString() : null,
+      lastSeen: hardwareStatus.lastSeen || "Not available", // Display the last seen time in IST
     };
 
     res.json(response);
@@ -116,6 +139,7 @@ setInterval(() => {
     const timeout = 10000; // 10 seconds timeout for "offline" status
     if (hardwareStatus.lastPing && now - hardwareStatus.lastPing > timeout) {
       hardwareStatus.online = false;
+      hardwareStatus.lastSeen = getIndiaTime(); // Record last seen time when it goes offline
       console.log("Hardware status updated to offline.");
     }
   } catch (error) {
