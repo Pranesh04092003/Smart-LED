@@ -86,12 +86,13 @@ app.get("/hardware", (req, res) => {
 // Periodically check if the hardware is still online
 setInterval(() => {
   const now = Date.now();
-  const timeout = 15000; // 15 seconds timeout for "offline" status
+  const timeout = 3000; // 3 seconds timeout for "offline" status
   if (hardwareStatus.lastPing && now - hardwareStatus.lastPing > timeout) {
     hardwareStatus.online = false;
     console.log("Hardware status updated to offline.");
   }
-}, 5000);
+}, 3000); // Set the interval to 3 seconds
+
 
 // Start the server
 const PORT = 3000;
