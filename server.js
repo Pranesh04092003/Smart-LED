@@ -16,7 +16,7 @@ let ledState = {
 let hardwareStatus = {
   online: false,
   lastPing: null,
-  lastSeen: null, // To store the last seen time when going offline
+  lastSeen: null, // To store the last seen time
 };
 
 // Helper function to get the current time in IST format
@@ -100,7 +100,9 @@ app.post("/hardware", (req, res) => {
     }
 
     hardwareStatus.online = true;
-    hardwareStatus.lastPing = new Date(); // Update the last ping time only
+    hardwareStatus.lastPing = new Date(); // Store current time as the last ping time
+    hardwareStatus.lastSeen = getIndiaTime(); // Record last seen time in IST
+
     console.log("Heartbeat received. Hardware is online.");
 
     res.json({
@@ -136,11 +138,9 @@ setInterval(() => {
     const now = Date.now();
     const timeout = 10000; // 10 seconds timeout for "offline" status
     if (hardwareStatus.lastPing && now - hardwareStatus.lastPing > timeout) {
-      if (hardwareStatus.online) {
-        hardwareStatus.online = false;
-        hardwareStatus.lastSeen = getIndiaTime(); // Record last seen time only when going offline
-        console.log("Hardware status updated to offline. Last seen recorded.");
-      }
+      hardwareStatus.online = false;
+      hardwareStatus.lastSeen = getIndiaTime(); // Record last seen time when it goes offline
+      console.log("Hardware status updated to offline.");
     }
   } catch (error) {
     console.error("Error in hardware status check:", error);
@@ -163,3 +163,4 @@ const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
