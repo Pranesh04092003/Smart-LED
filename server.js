@@ -113,7 +113,7 @@ app.get("/hardware", (req, res) => {
 setInterval(() => {
   try {
     const now = Date.now();
-    const timeout = 3000; // 3 seconds timeout for "offline" status
+    const timeout = 10000; // 3 seconds timeout for "offline" status
     if (hardwareStatus.lastPing && now - hardwareStatus.lastPing > timeout) {
       hardwareStatus.online = false;
       console.log("Hardware status updated to offline.");
@@ -121,7 +121,7 @@ setInterval(() => {
   } catch (error) {
     console.error("Error in hardware status check:", error);
   }
-}, 3000); // Set the interval to 3 seconds
+}, 5000); // Set the interval to 3 seconds
 
 // General error handling middleware (for unhandled routes)
 app.use((req, res) => {
