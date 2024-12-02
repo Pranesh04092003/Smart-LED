@@ -57,12 +57,35 @@ let hardwareStatus = {
   lastPing: null,
 };
 
-// Endpoint to receive heartbeat from the hardware
-app.post("/led/heartbeat", (req, res) => {
-  hardwareStatus.online = true; // Update status to online
-  hardwareStatus.lastPing = Date.now();
-  console.log("Heartbeat received. Hardware is online.");
-  res.json({ message: "Heartbeat received", status: hardwareStatus });
+app.post("/led", (req, res) => {
+  const { state, brightness, heartbeat } = req.body;
+
+  // Handle heartbeat updates
+  if (heartbeat) {
+    hardwareStatus.online = true;
+    hardwareStatus.lastPing = Date.now();
+    console.log("Heartbeat received. Hardware is online.");
+    return res.json({ message: "Heartbeat acknowledged", status: hardwareStatus });
+  }
+
+  // Handle LED state and brightness updates
+  if (typeof state !== "undefined") {
+    ledState.state = state;
+    if (!state) {
+      ledState.brightness = 0;
+    }
+    console.log(`LED State updated to: ${state ? "ON" : "OFF"}`);
+  }
+
+  if (typeof brightness !== "undefined" && ledState.state) {
+    ledState.brightness = brightness;
+    console.log(`LED Brightness updated to: ${brightness}`);
+  }
+
+  res.json({
+    message: "LED state updated",
+    ledState,
+  });
 });
 
 // Periodically check if the hardware is still online
@@ -75,10 +98,16 @@ setInterval(() => {
   }
 }, 5000);
 
-// Endpoint to get the hardware status
-app.get("/led/status", (req, res) => {
-  res.json(hardwareStatus);
+// Add the hardware status to the existing /led GET response
+app.get("/led", (req, res) => {
+  const response = {
+    ...ledState,
+    hardwareStatus: hardwareStatus.online ? "online" : "offline",
+  };
+  res.json(response);
+  console.log("LED state and hardware status fetched:", response);
 });
+
 
 
 // Start the server
