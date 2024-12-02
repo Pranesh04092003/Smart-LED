@@ -20,7 +20,7 @@ app.get("/led", (req, res) => {
 
   res.json(ledState);
   console.log(
-    LED state fetched: State - ${ledState.state}, Brightness - ${ledState.brightness}
+    `LED state fetched: State - ${ledState.state}, Brightness - ${ledState.brightness}`
   );
 });
 
@@ -31,7 +31,7 @@ app.post("/led", (req, res) => {
   // If the state is provided, update it
   if (typeof state !== "undefined") {
     ledState.state = state;
-    console.log(LED State updated to: ${state ? "ON" : "OFF"});
+    console.log(`LED State updated to: ${state ? "ON" : "OFF"}`);
 
     // If the LED is OFF, set brightness to 0
     if (!state) {
@@ -42,7 +42,7 @@ app.post("/led", (req, res) => {
   // If the brightness is provided and the LED is ON, update the brightness
   if (typeof brightness !== "undefined" && state) {
     ledState.brightness = brightness;
-    console.log(LED Brightness updated to: ${brightness});
+    console.log(`LED Brightness updated to: ${brightness}`);
   }
 
   // Send the updated state and brightness back to the client
@@ -55,5 +55,5 @@ app.post("/led", (req, res) => {
 // Start the server
 const PORT = 3000;
 app.listen(PORT, () => {
-  console.log(Server is running on http://localhost:${PORT});
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
