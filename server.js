@@ -52,6 +52,35 @@ app.post("/led", (req, res) => {
   });
 });
 
+let hardwareStatus = {
+  online: false,
+  lastPing: null,
+};
+
+// Endpoint to receive heartbeat from the hardware
+app.post("/led/heartbeat", (req, res) => {
+  hardwareStatus.online = true; // Update status to online
+  hardwareStatus.lastPing = Date.now();
+  console.log("Heartbeat received. Hardware is online.");
+  res.json({ message: "Heartbeat received", status: hardwareStatus });
+});
+
+// Periodically check if the hardware is still online
+setInterval(() => {
+  const now = Date.now();
+  const timeout = 15000; // 15 seconds timeout for "offline" status
+  if (hardwareStatus.lastPing && now - hardwareStatus.lastPing > timeout) {
+    hardwareStatus.online = false;
+    console.log("Hardware status updated to offline.");
+  }
+}, 5000);
+
+// Endpoint to get the hardware status
+app.get("/led/status", (req, res) => {
+  res.json(hardwareStatus);
+});
+
+
 // Start the server
 const PORT = 3000;
 app.listen(PORT, () => {
