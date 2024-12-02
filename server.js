@@ -121,7 +121,7 @@ app.get("/hardware", (req, res) => {
     const response = {
       online: hardwareStatus.online,
       lastPing: hardwareStatus.lastPing ? hardwareStatus.lastPing.toLocaleString() : null,
-      lastSeen: hardwareStatus.lastSeen || "Not available", // Display the last seen time in IST
+      lastSeen: hardwareStatus.lastSeen || "Not available", // Retain the last recorded time
     };
 
     res.json(response);
@@ -138,8 +138,10 @@ setInterval(() => {
     const now = Date.now();
     const timeout = 10000; // 10 seconds timeout for "offline" status
     if (hardwareStatus.lastPing && now - hardwareStatus.lastPing > timeout) {
+      if (hardwareStatus.online) {
+        hardwareStatus.lastSeen = getIndiaTime(); // Record last seen only when transitioning to offline
+      }
       hardwareStatus.online = false;
-      hardwareStatus.lastSeen = getIndiaTime(); // Record last seen time when it goes offline
       console.log("Hardware status updated to offline.");
     }
   } catch (error) {
