@@ -80,7 +80,7 @@ app.post("/hardware", (req, res) => {
     }
 
     hardwareStatus.online = true;
-    hardwareStatus.lastPing = Date.now();
+    hardwareStatus.lastPing = new Date(); // Store current time as the last ping time
     console.log("Heartbeat received. Hardware is online.");
 
     res.json({
@@ -98,7 +98,7 @@ app.get("/hardware", (req, res) => {
   try {
     const response = {
       online: hardwareStatus.online,
-      lastPing: hardwareStatus.lastPing,
+      lastPing: hardwareStatus.lastPing ? hardwareStatus.lastPing.toLocaleString() : null,
     };
 
     res.json(response);
@@ -113,7 +113,7 @@ app.get("/hardware", (req, res) => {
 setInterval(() => {
   try {
     const now = Date.now();
-    const timeout = 10000; // 3 seconds timeout for "offline" status
+    const timeout = 10000; // 10 seconds timeout for "offline" status
     if (hardwareStatus.lastPing && now - hardwareStatus.lastPing > timeout) {
       hardwareStatus.online = false;
       console.log("Hardware status updated to offline.");
@@ -121,7 +121,7 @@ setInterval(() => {
   } catch (error) {
     console.error("Error in hardware status check:", error);
   }
-}, 5000); // Set the interval to 3 seconds
+}, 5000); // Set the interval to 5 seconds
 
 // General error handling middleware (for unhandled routes)
 app.use((req, res) => {
